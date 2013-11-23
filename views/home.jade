@@ -1,0 +1,46 @@
+doctype 5
+html
+   head
+      title Super Chat
+      script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js')
+      script(src='http://codeorigin.jquery.com/ui/1.10.3/jquery-ui.min.js')
+      script(src="/socket.io/socket.io.js")
+      script(src="script.js")
+      link(href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css", rel="stylesheet", type="css/text")
+      link(href="/styles/style.css", rel="stylesheet", type="css/text")
+   body
+      div.container
+          header
+             h1 Super Chat
+             hr
+             div.flash                 
+          div.login
+             p
+                 div.login-header Login: 
+                 input(type='text')#login-username
+             p
+                 div.login-header Password: 
+                 input(type='password')#login-password
+             p    
+                 a(href='#')#login-submit.btn.btn-default Login!
+             div#login-loader.hidden
+                 img(src='/img/loader.gif')
+          div.chat
+             div.menu
+                 ul.nav.nav-pills
+                     li
+                         a(href='#').addConv Add Conversation
+             hr
+             div.convAdd                 
+                 h1 Adding Conversation
+                 span
+                     Conversation Name: 
+                 input(type='text').addConv-name 
+                 &nbsp;&nbsp;&nbsp;
+                 a(href='').addConv-submit.btn.btn-default Add!
+                 hr
+             div#chatConvs
+             br
+             div#chatEntries
+             div#chatControls
+                input(type='text')#messageInput

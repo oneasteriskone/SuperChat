@@ -1,0 +1,53 @@
+.box{
+	height: 60px;
+	width: 120px;
+	display: inline-block;
+	background-color: #F0F0F0  ;
+	box-shadow: 5px 5px 2.5px #F8F8F8;
+	border-radius: 2px;
+	text-align: center;
+	margin: 2px 15px 2px 15px;
+	
+}
+
+.box a{
+	display: inline-block;
+	margin: auto auto;
+}
+
+.login{
+	margin: 0 auto;	
+}
+
+.login-header{
+	width: 75px;
+	display: inline-block;
+}
+
+.leftMenu{
+	border-right: 1px solid #CECECE;
+	height: 300px;
+}
+
+.hidden{
+	display: none;
+}
+
+#messageInput{
+	width: 100%;
+}
+
+#chatEntries{
+	height: 300px;
+	overflow: auto;
+	overflow-x:hidden;
+}
+
+.center{
+	margin: 0 auto;
+	display: block;
+}
+
+.footer{
+	text-align: center;
+}

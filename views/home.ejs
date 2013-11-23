@@ -1,0 +1,115 @@
+<html>
+	<head>
+		<title>Super chat</title>
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+		<script src='http://codeorigin.jquery.com/ui/1.10.3/jquery-ui.min.js'></script>
+		<script src='/socket.io/socket.io.js'></script>
+		<script src='script.js'></script>
+		<link type='text/css' rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css' ></link>
+		<link type='text/css' rel='stylesheet' href='/styles/style.css' ></link>
+	</head>	
+	<body>
+		<div class='container'>
+			<header>
+				<h1><i class='glyphicon glyphicon-comment'></i> &nbsp;&nbsp;Super Chat</h1>
+				<hr />
+				<div class='flash' ></div>
+			</header>
+			
+			<div class='user-login-reg'>
+				<div class='row'>
+					<div class='col-md-2'></div>
+					<div class='col-md-4 leftMenu'>
+						<div class='login'>
+							<h2>Login</h2>
+							<p>
+								<div class='login-header'> Login: </div>
+								<input type='text' id='login-username' />
+							</p>
+							<p>
+								<div class='login-header'> Password: </div>
+								<input type='password' id='login-password' />
+							</p>
+							<p>
+								<a href='#' class='btn btn btn-default' id='login-submit'>Login!</a>
+							</p>
+							<div id='login-loader' class='hidden'> 
+								<img src='/img/loader.gif' alt='Loading...' />
+							</div>
+						</div> <!-- Login -->
+					</div><!-- user login reg column 1 end -->
+
+					<div class='col-md-1'></div>
+					
+					<div class='col-md-5'>
+						<div class='register'>
+							<h2>Register:</h2>
+							<p>
+							<div class='login-header'> Login: </div>
+							<input type='text' id='register-username' />
+							</p>
+							<p>
+								<div class='login-header'> Password: </div>
+								<input type='password' id='register-password' />
+							</p>
+							<p>
+								<div class='login-header'> Repeat Password: </div>
+								<input type='password' id='register-password-repeat' />
+							</p>
+							<p>
+								<a href='#' class='btn btn btn-default' id='register-submit'>Register!</a>
+							</p>
+						</div><!--register-->
+					</div> <!-- user login reg column 2 end -->
+				</div><!-- Row end -->
+			
+				
+			</div><!--user login reg end -->
+			
+			
+			<div class='chat'>				
+				
+				<div class='row'>					
+					<div class='col-md-3 leftMenu'>
+						<!--<div class='menu' >
+							<ul class=''>
+								<li> <a href='#' class='addConv'> Add Conversation </a>  </li>
+							</ul>
+						</div>
+						<hr />	-->			
+						<div class='convAdd' >
+							<input type='text' class='addConv-name' />
+							&nbsp;
+							<a href='' class='addConv-submit btn btn-default'> <i class='glyphicon glyphicon-plus-sign'></i></a>
+						</div>
+						
+						<div id='chatConvs'></div>						
+					</div>
+				
+					<div class='col-md-9'>
+						<br />				
+						<div id='chatEntries'>
+							<p>
+								<b>Super Chat: Let's start by selecting a conversation on the left! </b>
+							</p>
+						</div>				
+						<div id='chatControls'>
+							<input type='text' id='messageInput' maxlength='100' />
+						</div>
+					</div> <!-- col right -->
+					
+				</div><!-- row -->
+				
+
+				
+				
+				
+				
+			</div> <!-- chat -->
+			
+		</div> <!-- container -->
+		<div class='footer'>
+			<small>2013. Super Chat v1.0</small>
+		</div>
+	</body>
+</html>
