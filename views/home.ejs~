@@ -9,7 +9,7 @@
 		<link type='text/css' rel='stylesheet' href='/styles/style.css' ></link>
 	</head>	
 	<body>
-		<div class='container'>
+		<div class='wrap'>
 			<header>
 				<h1><i class='glyphicon glyphicon-comment'></i> &nbsp;&nbsp;Super Chat</h1>
 				<hr />
@@ -86,11 +86,11 @@
 						<div id='chatConvs'></div>						
 					</div>
 				
-					<div class='col-md-9'>
+					<div class='col-md-6'>
 						<br />				
 						<div id='chatEntries'>
 							<p>
-								Super Chat: Let's start by selecting a conversation on the left! 
+								<b>Super Chat: Let's start by selecting a conversation on the left! </b>
 							</p>
 						</div>				
 						<div id='chatControls'>
@@ -98,11 +98,12 @@
 						</div>
 					</div> <!-- col right -->
 					
+					<div class='col-md-3 rightMenu'>
+						<p>Active Users:</p>
+						<div class='activeUsers'></div>
+					</div> <!-- col right -->
+					
 				</div><!-- row -->
-				
-
-				
-				
 				
 				
 			</div> <!-- chat -->

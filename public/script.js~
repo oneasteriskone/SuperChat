@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:3000"); //Cambiar para que todos los puedan usar.
+var socket = io.connect("http://localhost:8080"); //Cambiar para que todos los puedan usar.
 var conversation = "";
 var pseudo = "";
 
@@ -6,10 +6,8 @@ $(function() {
 
 	socket.emit('getConvs');
 
-	socket.on('conv', function(conv){
-	
-		addConversation(conv);		
-		
+	socket.on('conv', function(conv){	
+		addConversation(conv);	
 	});
 	
 	socket.on('auth-login', function(auth){
@@ -28,15 +26,15 @@ $(function() {
 	});
 
 	socket.on('message', function(data) {
+
 		if(data['conv'] === conversation){
 			if( pseudo !== ""){							
 				if(data['pseudo'] == pseudo) // En caso de que el mensaje hay sido enviado por la misma persona.
 					data['pseudo'] = "Me";
 			   addMessage(data['message'], data['pseudo']);				   
 			}else{
-				console.log("You must login first! :(");
+				setFlash("You must login first! ");
 			}
-			
 	   }
 	});
 	
@@ -47,6 +45,25 @@ $(function() {
 		else
 			setFlash("The user "+data['username']+" was successfully added into the database");
 	});
+	
+	
+	/******************ACTIVE USERS*******************/
+	
+	socket.on('active_users', function(activeUsers){
+		displayActiveUsers(activeUsers)
+	});
+	
+	setInterval(function(){	
+		if(conversation != "")	
+			socket.emit('active-users', conversation);
+	}, 3000);
+	
+	setInterval(function(){
+		if(pseudo !== "" && conversation != "")
+			socket.emit('keep-user-alive', {username: pseudo, conv: conversation});
+	
+	}, 5000);
+	
 	
 	/******************STYLE*******************/
 	
@@ -186,7 +203,7 @@ function setConv(convId){
 	if(convId != "")
 	{
 		$("#chatEntries").empty();
-		socket.emit('setConv',  convId);	
+		socket.emit('setConv', { conversation: convId, user: pseudo});	
 		conversation = convId;
 		setFlash("Conversation started!");
 	}else{
@@ -196,7 +213,7 @@ function setConv(convId){
 
 /******************PSEUDO*******************/
 
-function setPseudo() {
+function setPseudo(pseudo) {
    if (pseudo != "")
    {
       socket.emit('setPseudo', pseudo);
@@ -206,7 +223,17 @@ function setPseudo() {
    }
 }
 
+/******************ACTIVE USERS*******************/
 
-
+function displayActiveUsers(users){
+	if(users === undefined)
+		return "";
+	list = "";	
+	for(i = 0; i < users.length; i++){
+		list += "<p><a href='#'>"+users[i]+"</a></p>"
+	}
+	
+	$('.activeUsers').empty().append(list);	
+}
 
 

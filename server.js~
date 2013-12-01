@@ -6,9 +6,10 @@
 var express = require('express');
 var app = express();
 var http = require('http');
-var server = http.createServer(app).listen(3000);
+var server = http.createServer(app).listen(8080);
 var io = require('socket.io').listen(server);
 var crypto = require('crypto');
+var cron = require('cron').CronJob
 
 //JADE
 //var jade = require('jade');
@@ -54,7 +55,6 @@ io.sockets.on('connection', function (socket) {
 	* ADD CONV
 	*/
 	socket.on('addConv', function(data){
-		console.log(data);
 		conv = {"conversation": data['convName'] };
 		db.test.insert(conv);
 		socket.emit('conv', conv);
@@ -64,24 +64,63 @@ io.sockets.on('connection', function (socket) {
    	* SET CONV
    	*/
 	socket.on('setConv', function(data){
-		socket.set('conversation', data);
-		db.test.find({conversation: data},{}, {limit: 10}, function(err, messages){
-			if(messages[0].messages != undefined){
-				msgs = messages[0].messages;
-				
-				io.sockets.socket(socket.id).emit('message', {'message': 'Starting conversation '+data+' !', 'pseudo': 'Super Chat',  'conv':data});
+		socket.set('conversation', data['conversation']);
+		db.test.findOne({conversation: data['conversation']},{}, {limit: 10}, function(err, messages){
+		
+		
+			io.sockets.socket(socket.id).emit('message', {'message': 'Starting conversation '+data['conversation']+' !', 'pseudo': 'Super Chat',  'conv':data['conversation']});
+		
+			if(messages.messages != undefined){
+				msgs = messages.messages;
 				
 				for(i = 0; i < msgs.length; i++){
-					console.log('sending message from previous conversation: '+ msgs[i]['message']);
+					//console.log('sending message from previous conversation: '+ msgs[i]['message']);
 					message = {
 						'message': msgs[i]['message'], 
 						'pseudo': msgs[i]['pseudo'],
-						'conv': data
+						'conv': data['conversation']
 				 	};
 					io.sockets.socket(socket.id).emit('message', message);
-					console.log(socket.id);
+				}			
+				
+			}		
+			
+			db.test.update({ "conversation": data['conversation']}, {
+					"$push" : {
+						active_user : {
+							user : data['user'],
+							last_active_date : new Date() 
+						}
+					}
+				},
+				{ upsert : true});
+				
+				
+				
+			
+			db.test.findOne({conversation: data['conversation']}, function(err, conv){
+				//Used to removed repeated users, the db.test.distinct was not working for some reason.. :(
+				usersArray = [];
+				activeUsers = conv.active_user;				
+				for(i = 0; i < activeUsers.length; i++){
+					user = activeUsers[i].user;					
+					var exists = false;
+					for(j = 0; j < usersArray.length; j++)
+						if(user === usersArray[j])
+							exists = true;										
+					if(!exists)
+						usersArray.push(user);					
 				}
-			}			
+				
+				io.sockets.socket(socket.id).emit('active_users', usersArray);		
+				
+			});
+			
+					
+			
+				
+
+				
 		});
 	});
 	
@@ -90,10 +129,8 @@ io.sockets.on('connection', function (socket) {
    	*/
 	socket.on('getConvs', function(){
 		db.test.find({}, {conversation: 1}, function(err, convs){
-			console.log(convs)
 			for(i = 0; i < convs.length; i++){
-				conv = { conversation: convs[i].conversation };
-				console.log(conv);				
+				conv = { conversation: convs[i].conversation };		
 				io.sockets.socket(socket.id).emit('conv', conv);
 			}//for
 		});
@@ -107,9 +144,6 @@ io.sockets.on('connection', function (socket) {
 			socket.get('conversation', function(converror, conv){	
 				var data = {message: message['message'], pseudo: message['pseudo'], conv: conv};
 				socket.broadcast.emit('message', data);
-				
-				console.log(name);
-				
 				db.test.update(
 					{
 						conversation: conv
@@ -125,8 +159,17 @@ io.sockets.on('connection', function (socket) {
 					},
 					{upsert: true}
 				);
-
-				console.log("user " + message['pseudo'] + " send this : " + message['message']);
+				
+				db.test.update({ "conversation": conv}, {
+					"$push" : {
+						active_user : {
+							user : message['pseudo'],
+							last_active_date : new Date() 
+						}
+					}
+				},
+				{ upsert : true});
+				
 			});
 			
 	   })
@@ -136,18 +179,16 @@ io.sockets.on('connection', function (socket) {
 	 * AUTH USER
 	 */
 	socket.on('auth-user', function(data){
-		console.log(data);
 		db.user.find({"username": data['username'] , "password": data['password']}, {"username": 1}, function(err, users){
 			auth = false;
 			if(users.length === 1)
 				auth = true;
 			socket.set('pseudo', data['username']);
 			
-			socket.get('pseudo', function (error, name) {
-				console.log(name);
-			});
-			
-			
+			//socket.get('pseudo', function (error, name) {
+			//	console.log(name);
+			//});
+						
 			io.sockets.socket(socket.id).emit('auth-login', auth);
 		});
 		
@@ -169,5 +210,83 @@ io.sockets.on('connection', function (socket) {
 				}				
 			});
 	});
+
+
+	socket.on('active-users', function(conversation){
+		db.test.findOne({conversation: conversation}, function(err, conv){
+				//Used to removed repeated users, the db.test.distinct was not working for some reason.. :(
+				usersArray = [];
+				activeUsers = conv.active_user;				
+				for(i = 0; i < activeUsers.length; i++){
+					user = activeUsers[i].user;					
+					var exists = false;
+					for(j = 0; j < usersArray.length; j++)
+						if(user === usersArray[j])
+							exists = true;										
+					if(!exists)
+						usersArray.push(user);					
+				}
+				
+				io.sockets.socket(socket.id).emit('active_users', usersArray);		
+				
+			});
+	});
+	
+	socket.on('keep-user-alive', function(data){
+		db.test.update({ "conversation": data['conv']}, {
+			"$push" : {
+				active_user : {
+					user : data['pseudo'],
+					last_active_date : new Date() 
+				}
+			}
+		},
+		{ upsert : true});
+	});
+
+
 	
 });// io sockets connection
+
+
+/**
+* CRON JOB
+**/
+
+
+new cron('* * * * * * ', function(){
+	
+	
+	db.test.find({}, function(err, convs){
+		
+		for(i = 0; i < convs.length; i++){
+			conv_to_check = convs[i].conversation;
+			conv_users = convs[i].active_user;
+			if(conv_users != undefined)
+				for(j = 0; j < conv_users.length; j++){
+					user_to_check = conv_users[j].user;
+					
+					curDate = new Date();
+					cur = (curDate.getHours()*60);
+					cur += curDate.getMinutes();
+					
+					users_active_date = conv_users[j].last_active_date;
+					active = (users_active_date.getHours()*60);
+					active += users_active_date.getMinutes();										
+					
+					if((cur - active) >= 1){
+						db.test.update( { conversation: conv_to_check, active_user: {$elemMatch: { user: user_to_check}} }, { $pull :{ active_user: {user: user_to_check} } }, {multi: true});
+						
+						
+						//console.log("User "+user_to_check+" eliminated for inactivity!")
+					}
+				}
+			
+		}
+		
+		
+	});
+	
+}, null, true, 'America/Los_Angeles');
+
+

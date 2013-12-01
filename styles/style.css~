@@ -1,3 +1,7 @@
+.wrap{
+	margin: 5px 20px 5px 20px;
+}
+
 .box{
 	height: 60px;
 	width: 120px;
@@ -29,6 +33,15 @@
 	height: 300px;
 }
 
+.rightMenu{
+	height: 300px;
+	border-left: 1px solid #CECECE;
+}
+
+.activeUsers{
+height: 250px;
+}
+
 .hidden{
 	display: none;
 }
@@ -49,5 +62,6 @@
 }
 
 .footer{
+	margin-top: 60px;
 	text-align: center;
 }
